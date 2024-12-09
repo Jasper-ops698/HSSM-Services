@@ -31,7 +31,7 @@ router.post("/mpesa/stk-push", async (req, res) => {
         PartyA: phoneNumber,
         PartyB: process.env.MPESA_SHORTCODE,
         PhoneNumber: phoneNumber,
-        CallBackURL: "https://your-server.com/api/mpesa/callback",
+        CallBackURL: "https://multi-shop-chi.vercel.app/api/mpesa/callback",
         AccountReference: "ECommerceApp",
         TransactionDesc: "Payment for services",
       },

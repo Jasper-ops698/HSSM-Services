@@ -6,7 +6,7 @@ const Home = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
-      const response = await axios.get("http://localhost:5000/api/services");
+      const response = await axios.get("http://localhost:4000/api/services");
       setServices(response.data);
     };
     fetchServices();
