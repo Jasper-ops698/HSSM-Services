@@ -1,28 +1,19 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React from 'react';
+import { Button, Box, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
-  const [services, setServices] = useState([]);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      const response = await axios.get("http://localhost:4000/api/services");
-      setServices(response.data);
-    };
-    fetchServices();
-  }, []);
-
   return (
-    <div>
-      <h1>Available Services</h1>
-      <ul>
-        {services.map((service) => (
-          <li key={service._id}>
-            {service.name} - ${service.price} (Provider: {service.providerId.name})
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Box sx={{ textAlign: 'center', padding: 4 }}>
+      <Typography variant="h3" sx={{ marginBottom: 3 }}>Welcome to our Services</Typography>
+      <Typography variant="h6" sx={{ marginBottom: 3 }}>Your one-stop solution for cleaning, laundry, and plumbing services.</Typography>
+      <Button variant="contained" color="primary" component={Link} to="/signup" sx={{ marginRight: 2 }}>
+        Get Started
+      </Button>
+      <Button variant="outlined" color="primary" component={Link} to="/login">
+        Login
+      </Button>
+    </Box>
   );
 };
 
