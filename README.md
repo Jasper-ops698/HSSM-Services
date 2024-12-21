@@ -1,5 +1,3 @@
-# MultiShop
-Here's a draft of the README for your MultiShop app:
 
 # MultiShop
 
