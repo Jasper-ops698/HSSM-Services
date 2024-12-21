@@ -1,4 +1,4 @@
-const axios = require9("axios");
+const axios = require("axios");
 require("dotenv").config();
 
 const getMpesaToken = async () => {
