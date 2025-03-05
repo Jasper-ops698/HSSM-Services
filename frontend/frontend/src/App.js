@@ -1,27 +1,37 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import Navbar from './components/Navbar';
 import Breadcrumbs from './components/Breadcrumbs';
-import Home from './pages/Home';
-import ServiceRequestForm from './pages/ServicePage';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
 import AuthProvider from './context/AuthContext'; 
 import PrivateRoute from './components/PrivateRoute';
-import PaymentHistoryPage from './pages/PaymentHistoryPage';
-import PaymentPage from './pages/PaymentPage';
-import About from './pages/AboutPage';
-import AdminDashboard from './pages/Admin';
+import ErrorBoundary from './components/ErrorBoundary'; // New error boundary component
+import Loading from './components/Loading'; // Fallback loading component
+
+// Lazy-loaded components
+const Home = React.lazy(() => import('./pages/Home'));
+const ServiceRequestForm = React.lazy(() => import('./pages/ServicePage'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Signup = React.lazy(() => import('./pages/Signup'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Footer = React.lazy(() => import('./pages/AboutPage'));
+const AdminDashboard = React.lazy(() => import('./pages/Admin'));
+const Hssm = React.lazy(() => import('./pages/HSSM'));
+const NotFound = React.lazy(() => import('../src/NotFound')); // 404 Page
+const Total = React.lazy(() => import('./pages/Total'));
+
+// Updated MUI theme
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2', 
+      main: '#0052cc', // Modern vibrant blue
     },
     secondary: {
-      main: '#dc004e', 
+      main: '#ff4081', // Trendy magenta
     },
+  },
+  typography: {
+    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", // Default modern typography
   },
 });
 
@@ -32,29 +42,49 @@ const App = () => {
       <Router>
         <AuthProvider>
           <Navbar />
-          <Breadcrumbs language="en" /> {/* multilingual support */}
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/service" element={<ServiceRequestForm />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/paymentHistory" element={<PaymentHistoryPage />} />
-            <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/about" element={<About />} />
-            <Route 
-            path="/admin" element={ 
-            <PrivateRoute>
-              <AdminDashboard />
-            </PrivateRoute>} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-          </Routes>
+          <Breadcrumbs language="en" />
+          <ErrorBoundary>
+            <Suspense fallback={<Loading />}>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/service" element={<ServiceRequestForm />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/about" element={<Footer />} />
+                <Route path="/total" element={<Total />} />
+
+                {/* Protected Routes */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <PrivateRoute role="admin">
+                      <AdminDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <PrivateRoute role="service-provider">
+                      <Dashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route 
+                  path="/hssm" 
+                  element={
+                    <PrivateRoute role="HSSM-provider">
+                      <Hssm />
+                    </PrivateRoute>
+                  }
+                />
+
+                {/* Catch-All Route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </AuthProvider>
       </Router>
     </ThemeProvider>

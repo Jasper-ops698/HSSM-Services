@@ -1,11 +1,24 @@
-import React, { useContext, useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
+import ncmtc from './assests/ncmtc.png';
+import './Navbar.css';
 
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -18,30 +31,35 @@ const Navbar = () => {
 
   const menuItems = [
     { text: 'Home', path: '/' },
-    { text: 'Services', path: '/services' },
     { text: 'Sign Up', path: '/signup' },
-    { text: 'Login', path: '/login' }
+    { text: 'Login', path: '/login' },
   ];
 
   return (
     <AppBar position="sticky">
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Jasper Services
+        <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+          <img src={ncmtc} alt= "ncmtc logo" className='ncmtc'/>
+          <span>HSSM Services</span>
         </Typography>
 
         {/* Desktop Nav Links */}
         <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
           {menuItems.map((item) => (
-            <Button key={item.text} color="inherit" component={Link} to={item.path}>
+            <Button
+              key={item.text}
+              color="inherit"
+              component={Link}
+              to={item.path}
+              sx={{ textDecoration: 'none' }}
+            >
               {item.text}
             </Button>
           ))}
           {user && (
-            <>
-              <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
-              <Button color="inherit" onClick={logout}>Logout</Button>
-            </>
+            <Button color="inherit" onClick={logout}>
+              Logout
+            </Button>
           )}
         </Box>
 
@@ -51,6 +69,7 @@ const Navbar = () => {
           edge="end"
           onClick={toggleMobileMenu}
           sx={{ display: { xs: 'block', sm: 'none' } }}
+          aria-label="open drawer"
         >
           <MenuIcon />
         </IconButton>
@@ -64,19 +83,20 @@ const Navbar = () => {
         >
           <List>
             {menuItems.map((item) => (
-              <ListItem button key={item.text} component={Link} to={item.path} onClick={handleMenuClose}>
+              <ListItem
+                button
+                key={item.text}
+                component={Link}
+                to={item.path}
+                onClick={handleMenuClose}
+              >
                 <ListItemText primary={item.text} />
               </ListItem>
             ))}
             {user && (
-              <>
-                <ListItem button component={Link} to="/dashboard" onClick={handleMenuClose}>
-                  <ListItemText primary="Dashboard" />
-                </ListItem>
-                <ListItem button onClick={logout}>
-                  <ListItemText primary="Logout" />
-                </ListItem>
-              </>
+              <ListItem button onClick={logout}>
+                <ListItemText primary="Logout" />
+              </ListItem>
             )}
           </List>
         </Drawer>

@@ -1,293 +1,387 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Container,
+  Typography,
+  Grid,
+  CircularProgress,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Box,
+} from '@mui/material';
+import dayjs from 'dayjs';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // Import context for managing auth state
 
-// Base API instance
-const proxy = 'https://multi-shop-chi.vercel.app';
-const api = axios.create({
-  baseURL: proxy || 'http://localhost:4000/api',
-  headers: {
-    'Access-Control-Allow-Origin': '*',
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-  },
-});
-
-// Reusable Modal Component
-const Modal = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="modal">
-      <div className="modal-content">
-        <span className="close" onClick={onClose}>&times;</span>
-        <h2>{title}</h2>
-        {children}
-      </div>
-    </div>
-  );
-};
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
-  const [dashboardData, setDashboardData] = useState(null);
+  const { user } = useAuth(); // Get user from AuthContext
+  const navigate = useNavigate();
+
+  const [requests, setRequests] = useState([]);
+  const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Modal states
-  const [modals, setModals] = useState({
-    isRequestModalOpen: false,
-    isCreateServiceModalOpen: false,
-    isBookingModalOpen: false, // Booking modal
-  });
-
-  const [requestDetails, setRequestDetails] = useState({
-    serviceType: '',
-    description: '',
-  });
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [serviceDetails, setServiceDetails] = useState({
     name: '',
     description: '',
     price: '',
+    image: '',
   });
+  const [imageFile, setImageFile] = useState(null);
 
-  const [bookingDetails, setBookingDetails] = useState({
-    serviceId: '',
-    providerId: '',
-    userId: user._id, // Assuming user is logged in and has _id
-    date: '',
-    time: '',
-  });
+  const [requestStatusFilter, setRequestStatusFilter] = useState('');
 
-  // Modal handlers
-  const toggleModal = (modalName, isOpen) => {
-    setModals((prev) => ({ ...prev, [modalName]: isOpen }));
-  };
+  const getAuthToken = () => localStorage.getItem('token'); // Retrieve token from localStorage
 
-  // Form handlers
-  const handleInputChange = (e, setState) => {
-    const { id, value } = e.target;
-    setState((prev) => ({ ...prev, [id]: value }));
-  };
+  const fetchDashboardData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-  // Submit handlers
-  const handleRequestSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await api.post('/requests/', requestDetails);
-      console.log('Request submitted:', response.data);
-      toggleModal('isRequestModalOpen', false);
-    } catch (err) {
-      console.error('Error submitting request:', err.response?.data?.message || err.message);
+    const token = getAuthToken();
+    if (!token) {
+      setError('No token found');
+      setIsLoading(false);
+      return;
     }
-  };
 
-  const handleCreateServiceSubmit = async (event) => {
-    event.preventDefault();
     try {
-      const response = await api.post('/services/', serviceDetails);
-      console.log('Service created:', response.data);
-      toggleModal('isCreateServiceModalOpen', false);
-    } catch (err) {
-      console.error('Error creating service:', err.response?.data?.message || err.message);
-    }
-  };
+      const response = await axios.get(`${API_BASE_URL}/api/dashboard/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-  const handleBookingSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await api.post('/bookings/', bookingDetails);
-      console.log('Booking submitted:', response.data);
-      toggleModal('isBookingModalOpen', false);
-    } catch (err) {
-      console.error('Error booking service:', err.response?.data?.message || err.message);
-    }
-  };
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await api.get('/dashboard/dashboard');
-        setDashboardData(response.data);
-        setIsLoading(false);
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err.response?.data?.message || err.message);
-        setError('Error fetching dashboard data. Please try again later.');
-        setIsLoading(false);
+      if (response.status === 200) {
+        setRequests(response.data.requests);
+      } else {
+        throw new Error('Failed to fetch data');
       }
-    };
-
-    fetchDashboardData();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch dashboard data.');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  if (isLoading) return <div className="spinner"></div>;
-  if (error) return <p>{error}</p>;
+  const fetchCreatedServices = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-  const { totalRequests, requests } = dashboardData;
+    const token = getAuthToken();
+    if (!token) {
+      setError('No token found');
+      setIsLoading(false);
+      return;
+    }
+
+    console.log('Token size:', token.length);
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/services/service`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 200 && Array.isArray(response.data)) {
+        setServices(response.data);
+      } else {
+        throw new Error(response.data?.message || 'Unexpected response format');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch created services.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    } else {
+      fetchDashboardData();
+      if (user.role === 'service-provider') {
+        fetchCreatedServices();
+      }
+    }
+  }, [user, navigate, fetchDashboardData, fetchCreatedServices]);
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setServiceDetails((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleImageChange = (event) => {
+    setImageFile(event.target.files[0]);
+  };
+
+  const handleCreateService = async (event) => {
+    event.preventDefault();
+
+    if (!serviceDetails.name || !serviceDetails.description || !serviceDetails.price) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    const token = getAuthToken();
+    if (!token) {
+      alert('No token found. Please log in again.');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('name', serviceDetails.name);
+      formData.append('description', serviceDetails.description);
+      formData.append('price', parseFloat(serviceDetails.price) || 0);
+
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      await axios.post(`${API_BASE_URL}/api/services/`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert('Service created successfully!');
+      setServiceDetails({ name: '', description: '', price: '', image: '' });
+      setIsModalOpen(false);
+      fetchCreatedServices();
+    } catch (err) {
+      alert('Error creating service. Please try again.');
+    }
+  };
+
+  const handleEditService = async (event, id) => {
+    event.preventDefault();
+
+    if (!serviceDetails.name || !serviceDetails.description || !serviceDetails.price) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    const token = getAuthToken();
+    if (!token) {
+      alert('No token found. Please log in again.');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('name', serviceDetails.name);
+      formData.append('description', serviceDetails.description);
+      formData.append('price', parseFloat(serviceDetails.price) || 0);
+
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      await axios.put(`${API_BASE_URL}/api/services/${id}`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert('Service updated successfully!');
+      setServiceDetails({ name: '', description: '', price: '', image: '' });
+      setIsModalOpen(false);
+      fetchCreatedServices();
+    } catch (err) {
+      alert('Error updating service. Please try again.');
+    }
+  };
+
+  const handleStatusChange = async (requestId, status) => {
+    const token = getAuthToken();
+    if (!token) {
+      alert('No token found. Please log in again.');
+      return;
+    }
+
+    try {
+      await axios.put(`${API_BASE_URL}/api/requests/${requestId}/status`, { status }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert('Request status updated successfully!');
+      fetchDashboardData();
+    } catch (err) {
+      alert('Error updating request status. Please try again.');
+    }
+  };
+
+  const closeModal = () => setIsModalOpen(false);
+
+  const filteredRequests = (requests || []).filter((request) =>
+    requestStatusFilter ? request.status === requestStatusFilter : true
+  );
 
   return (
-    <div className="dashboard-container">
-      <h1>{user.role === 'individual' ? 'My Requests' : 'Service Provider Dashboard'}</h1>
+    <Container maxWidth="md" sx={{ backgroundColor: '#f4f4f4', padding: '2rem', borderRadius: '1rem' }}>
+      <Typography variant="h4" align="center" gutterBottom sx={{ color: '#3f51b5', mb: 4 }}>
+        My Dashboard
+      </Typography>
 
-      <p>Total Requests: {totalRequests}</p>
-
-      <div>
-        {user.role === 'individual' && (
-          <div className="requests-section">
-            <h2>My Requests</h2>
-            <ul>
-              {requests.map((request) => (
-                <li key={request._id}>
-                  <h3>{request.service.name}</h3>
-                  <p>Status: {request.status}</p>
-                  <p>Created At: {new Date(request.createdAt).toLocaleString()}</p>
-                  {request.completed && (
-                    <div className="rating-review">
-                      <p>Rating: {request.rating}</p>
-                      <p>Review: {request.review}</p>
-                    </div>
-                  )}
-                </li>
+      {isLoading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+          <CircularProgress />
+        </div>
+      ) : error ? (
+        <div>
+          <Typography variant="h6" color="error">Error: {error}</Typography>
+          <Button variant="contained" onClick={fetchDashboardData}>Try Again</Button>
+        </div>
+      ) : (
+        <>
+          <Typography variant="h5" align="center" gutterBottom sx={{ color: '#3f51b5', mb: 4 }}>
+            Service Requests
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Status Filter</InputLabel>
+              <Select
+                value={requestStatusFilter}
+                onChange={(e) => setRequestStatusFilter(e.target.value)}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="pending">Pending</MenuItem>
+                <MenuItem value="accepted">Accepted</MenuItem>
+                <MenuItem value="completed">Completed</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          {Array.isArray(filteredRequests) && filteredRequests.length === 0 ? (
+            <Typography variant="h6" align="center">No service requests found.</Typography>
+          ) : (
+            <Grid container spacing={3}>
+              {Array.isArray(filteredRequests) && filteredRequests.map((request) => (
+                <Grid item xs={12} sm={6} md={4} key={request._id}>
+                  <div style={{ backgroundColor: '#fff', borderRadius: '8px', padding: '1rem' }}>
+                    <img
+                      src={request.image || 'fallback-image-url.jpg'}
+                      alt={`Service request for ${request.serviceType}`}
+                      style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                      onError={(e) => (e.target.src = 'fallback-image-url.jpg')}
+                    />
+                    <Typography variant="h5">{request.serviceType}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Date: {dayjs(request.date).format('MMM DD, YYYY')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Time: {dayjs(request.time).format('h:mm A')}
+                    </Typography>
+                    <FormControl fullWidth size="small" sx={{ mt: 2 }}>
+                      <InputLabel>Status</InputLabel>
+                      <Select
+                        value={request.status || ''}
+                        onChange={(e) => handleStatusChange(request._id, e.target.value)}
+                      >
+                        <MenuItem value="pending">Pending</MenuItem>
+                        <MenuItem value="accepted">Accepted</MenuItem>
+                        <MenuItem value="completed">Completed</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </div>
+                </Grid>
               ))}
-            </ul>
-            <button onClick={() => toggleModal('isRequestModalOpen', true)}>
-              Request a Service
-            </button>
-            <button onClick={() => toggleModal('isBookingModalOpen', true)}>
-              Book a Service
-            </button>
-          </div>
-        )}
+            </Grid>
+          )}
 
-        {user.role === 'serviceProvider' && (
-          <div className="requests-section">
-            <h2>My Service Requests</h2>
-            <ul>
-              {requests.map((request) => (
-                <li key={request._id}>
-                  <h3>{request.service.name}</h3>
-                  <p>User: {request.user.name}</p>
-                  <p>Status: {request.status}</p>
-                  <p>Created At: {new Date(request.createdAt).toLocaleString()}</p>
-                  {request.completed && (
-                    <div className="feedback">
-                      <p>Rating: {request.rating}</p>
-                      <p>Review: {request.review}</p>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <button onClick={() => toggleModal('isCreateServiceModalOpen', true)}>
-              Create a Service
-            </button>
-          </div>
-        )}
-      </div>
+          {user?.role === 'service-provider' && (
+            <>
+              <Typography variant="h5" align="center" gutterBottom sx={{ color: '#3f51b5', mt: 4, mb: 4 }}>
+                Created Services
+              </Typography>
+              {services.length === 0 ? (
+                <Typography variant="h6" align="center">Created services missing.</Typography>
+              ) : (
+                <Grid container spacing={3}>
+                  {services.map((service) => (
+                    <Grid item xs={12} sm={6} md={4} key={service._id}>
+                      <div style={{ backgroundColor: '#fff', borderRadius: '8px', padding: '1rem' }}>
+                        <Typography variant="h5">{service.name}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Description: {service.description}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Price: Ksh{service.price}
+                        </Typography>
+                        <Button onClick={() => {
+                          setServiceDetails(service);
+                          setIsModalOpen(true);
+                        }} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
+                          Edit
+                        </Button>
+                      </div>
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+              <Button onClick={() => {
+                setServiceDetails({ name: '', description: '', price: '', image: '' });
+                setIsModalOpen(true);
+              }} variant="contained" sx={{ mt: 3 }}>
+                Create Service
+              </Button>
+            </>
+          )}
+        </>
+      )}
 
-      {/* Request Modal */}
-      <Modal
-        isOpen={modals.isRequestModalOpen}
-        onClose={() => toggleModal('isRequestModalOpen', false)}
-        title="Request a Service"
-      >
-        <form onSubmit={handleRequestSubmit}>
-          <label htmlFor="serviceType">Service Type:</label>
-          <input
-            type="text"
-            id="serviceType"
-            value={requestDetails.serviceType}
-            onChange={(e) => handleInputChange(e, setRequestDetails)}
-            required
-          />
-          <label htmlFor="description">Description:</label>
-          <textarea
-            id="description"
-            value={requestDetails.description}
-            onChange={(e) => handleInputChange(e, setRequestDetails)}
-            required
-          ></textarea>
-          <button type="submit">Submit Request</button>
-        </form>
-      </Modal>
-
-      {/* Create Service Modal */}
-      <Modal
-        isOpen={modals.isCreateServiceModalOpen}
-        onClose={() => toggleModal('isCreateServiceModalOpen', false)}
-        title="Create a Service"
-      >
-        <form onSubmit={handleCreateServiceSubmit}>
-          <label htmlFor="name">Service Name:</label>
-          <input
-            type="text"
-            id="name"
-            value={serviceDetails.name}
-            onChange={(e) => handleInputChange(e, setServiceDetails)}
-            required
-          />
-          <label htmlFor="description">Description:</label>
-          <textarea
-            id="description"
-            value={serviceDetails.description}
-            onChange={(e) => handleInputChange(e, setServiceDetails)}
-            required
-          ></textarea>
-          <label htmlFor="price">Price:</label>
-          <input
-            type="number"
-            id="price"
-            value={serviceDetails.price}
-            onChange={(e) => handleInputChange(e, setServiceDetails)}
-            required
-          />
-          <button type="submit">Create Service</button>
-        </form>
-      </Modal>
-
-      {/* Booking Modal */}
-      <Modal
-        isOpen={modals.isBookingModalOpen}
-        onClose={() => toggleModal('isBookingModalOpen', false)}
-        title="Book a Service"
-      >
-        <form onSubmit={handleBookingSubmit}>
-          <label htmlFor="serviceId">Service ID:</label>
-          <input
-            type="text"
-            id="serviceId"
-            value={bookingDetails.serviceId}
-            onChange={(e) => handleInputChange(e, setBookingDetails)}
-            required
-          />
-          <label htmlFor="providerId">Provider ID:</label>
-          <input
-            type="text"
-            id="providerId"
-            value={bookingDetails.providerId}
-            onChange={(e) => handleInputChange(e, setBookingDetails)}
-            required
-          />
-          <label htmlFor="date">Date:</label>
-          <input
-            type="date"
-            id="date"
-            value={bookingDetails.date}
-            onChange={(e) => handleInputChange(e, setBookingDetails)}
-            required
-          />
-          <label htmlFor="time">Time:</label>
-          <input
-            type="time"
-            id="time"
-            value={bookingDetails.time}
-            onChange={(e) => handleInputChange(e, setBookingDetails)}
-            required
-          />
-          <button type="submit">Book Service</button>
-        </form>
-      </Modal>
-    </div>
+      <Dialog open={isModalOpen} onClose={closeModal}>
+        <DialogTitle>{serviceDetails._id ? 'Edit Service' : 'Create a Service'}</DialogTitle>
+        <DialogContent>
+          <form onSubmit={(event) => serviceDetails._id ? handleEditService(event, serviceDetails._id) : handleCreateService(event)}>
+            <TextField
+              label="Service Name"
+              id="name"
+              value={serviceDetails.name}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              size="small"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Short Description"
+              id="description"
+              value={serviceDetails.description}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              size="small"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Price"
+              id="price"
+              type="number"
+              value={serviceDetails.price}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              size="small"
+              sx={{ mb: 2 }}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ display: 'block', marginBottom: '1rem' }}
+            />
+            <DialogActions>
+              <Button onClick={closeModal} color="primary">Cancel</Button>
+              <Button type="submit" color="primary">{serviceDetails._id ? 'Update Service' : 'Create Service'}</Button>
+            </DialogActions>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </Container>
   );
 };
 

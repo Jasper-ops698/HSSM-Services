@@ -1,23 +1,44 @@
 import React from 'react';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Typography, Box, useMediaQuery } from '@mui/material';
 
-const About = () => {
+const Footer = () => {
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+
   return (
-    <Container>
-      <Typography variant="h3" align="center" gutterBottom>
-        About Us
-      </Typography>
-      <Box mt={4}>
-        <Typography variant="h6" paragraph>
-          MultiShop Services is committed to providing top-notch services, ensuring your home and business run smoothly. 
+    <Box 
+      sx={{
+        backgroundColor: '#3f51b5', // Dark blue background color for footer
+        color: '#fff', // White text color
+        padding: isSmallScreen ? '1rem 0' : '2rem 0', // Adjust padding for small screens
+        marginTop: 'auto', // Push the footer to the bottom of the page
+        textAlign: 'center', // Center the text inside the footer
+        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)', // Add subtle shadow for a modern feel
+      }}
+    >
+      <Container>
+        <Box>
+          <Typography 
+            variant={isSmallScreen ? 'body2' : 'body1'} // Adjust text size for small screens
+            paragraph
+            sx={{
+              fontWeight: 400,
+              letterSpacing: '0.5px',
+            }}
+          >
+            HSSM Services is committed to providing pocket-friendly, desirable services, to promote an efficient and effective working environment.
+          </Typography>
+        </Box>
+        <Typography 
+          variant="body2" 
+          color="textSecondary" 
+          mt={2}
+          sx={{ fontSize: isSmallScreen ? '0.75rem' : '0.875rem' }} // Smaller font on small screens
+        >
+          &copy; {new Date().getFullYear()} HSSM Services. All rights reserved.
         </Typography>
-        <Typography variant="body1" color="textSecondary">
-          With a dedicated team of professionals, we specialize in cleaning, laundry, and plumbing services. Our goal is to
-          deliver convenience and quality at your doorstep.
-        </Typography>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 
-export default About;
+export default Footer;

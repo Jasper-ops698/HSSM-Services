@@ -1,16 +1,27 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';  
 
-const PrivateRoute = ({ children }) => {
-  const { user } = useAuth();  // Use useAuth hook to get user
+const PrivateRoute = ({ children, role }) => {
+  // Retrieve token and user data from localStorage
+  const token = localStorage.getItem('token');
+  const userData = localStorage.getItem('userData');
 
-  // If user is not logged in, redirect to the login page
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  // Parse the userData, if exists
+  const user = token && userData ? JSON.parse(userData) : null;
+
+  // If no token or user data, redirect to login
+  if (!token || !user) {
+    console.log('No user or token found. Redirecting to login.');
+    return <Navigate to="/login" />;
   }
 
-  // If user is logged in, render the children components
+  // If the role is provided and user doesn't have the required role, redirect to access-denied
+  if (role && user.role !== role) {
+    console.log(`Access Denied. User role: ${user.role}, Required role: ${role}`);
+    return <Navigate to="/" />;
+  }
+
+  // Render the protected component if user is authenticated and has the correct role
   return children;
 };
 
