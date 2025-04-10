@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Box, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import Footer from './AboutPage';  
-import { BubbleChat } from 'flowise-embed-react';
+import { BubbleChat } from 'gemini-embed-react';
 
 const Home = () => {
   return (
@@ -24,8 +24,8 @@ const Home = () => {
 
         {/* Chatbot Integration */}
         <BubbleChat
-          chatflowid="ad955aba-c62e-49df-940b-5e8260bf6af2"
-          apiHost="http://localhost:3000"
+          chatflowid="new-chatflow-id-here" // Replace with the updated chatflow ID
+          apiHost="https://gemini.google.com"
         />
       </Box>
 
