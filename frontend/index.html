@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Shop E-Commerce App</title>
+    <title>HSSM-Services</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
@@ -167,7 +167,7 @@
     <!-- Login Container -->
     <div class="login-container" id="login-container">
         <div class="login-form">
-            <h2>Welcome to Multi-Shop</h2>
+            <h2>Welcome to HSSM-Services</h2>
             <p>Please sign in to continue</p>
             <button class="google-btn" id="google-signin-btn">
                 <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
@@ -198,7 +198,7 @@
             </nav>
         </header>
         <main id="main-content">
-            <h1>Welcome to Multi-Shop</h1>
+            <h1>Welcome to HSSM-Services</h1>
             <p>This is the home page.</p>
 
             <!-- Student Dashboard -->
@@ -230,6 +230,76 @@
 
         <!-- Legacy static chat UI removed — React handles chat via SPA components -->
     </div>
-    <!-- Legacy main.js previously handled static DOM features. It has been deprecated; React SPA handles behavior. -->
+
+    <!-- Scripts for Firebase -->
+    <!-- IMPORTANT: These scripts should be placed at the end of the body tag -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyAvf-2_mDu-YCgYAW0qVeB1jH8Na0RkR74",
+        authDomain: "hssm-services-1e3d5.firebaseapp.com",
+        projectId: "hssm-services-1e3d5",
+        storageBucket: "hssm-services-1e3d5.appspot.com",
+        messagingSenderId: "661426712029",
+        appId: "1:661426712029:web:b9b092171ce1ab034ada34",
+        measurementId: "G-5T5JRPWRH1"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const messaging = firebase.messaging();
+
+      // Request permission to receive push notifications
+      function requestNotificationPermission() {
+        messaging.requestPermission()
+          .then(() => {
+            console.log('Notification permission granted.');
+            // Get the token
+            return messaging.getToken();
+          })
+          .then(token => {
+            console.log('FCM Token:', token);
+            // Send this token to your server
+            sendTokenToServer(token);
+          })
+          .catch((err) => {
+            console.log('Unable to get permission to notify.', err);
+          });
+      }
+
+      // Send the token to your backend
+      function sendTokenToServer(token) {
+        const user = JSON.parse(localStorage.getItem('userData'));
+        if (!user || !user._id) {
+          console.error('User not logged in or user ID not found in localStorage.');
+          return;
+        }
+        const userId = user._id;
+        
+        fetch('/api/notifications/register-device', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the auth token in localStorage
+          },
+          body: JSON.stringify({
+            token: token,
+            userId: userId,
+            platform: 'fcm' // For web, this is 'fcm'
+          })
+        })
+        .then(response => response.json())
+        .then(data => console.log('Token sent to server:', data))
+        .catch(error => console.error('Error sending token to server:', error));
+      }
+
+      // You can call this function when the user logs in or on a button click
+      // For example, after a user logs in:
+      // requestNotificationPermission();
+    </script>
 </body>
 </html>

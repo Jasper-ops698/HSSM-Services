@@ -3,7 +3,7 @@ console.log("Frontend setup is working!");
 
 // API Configuration
 // Prefer an explicit window-global base URL if the React app injects it, fall back to the original default.
-const API_BASE_URL = window.__API_BASE_URL__ || 'https://hssm-2-1.onrender.com';
+const API_BASE_URL = 'https://hssmservices-cwggbkcpadg2d3be.uaenorth-01.azurewebsites.net';
 
 // Lightweight fetch wrapper used by this legacy script. It mirrors the behavior of the
 // centralized frontend `api` client by prefixing the base URL and attaching the
@@ -119,6 +119,11 @@ async function handleCredentialResponse(response) {
         localStorage.setItem('authToken', userToken);
         localStorage.setItem('userData', JSON.stringify(userData));
         isLoggedIn = true;
+
+        // Request notification permission after successful login
+        if (typeof requestNotificationPermission === 'function') {
+          requestNotificationPermission();
+        }
 
         showApp();
 
