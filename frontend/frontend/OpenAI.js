@@ -6,7 +6,7 @@ const Chatbot = () => {
     const [chatHistory, setChatHistory] = useState([]);
 
     const sendMessage = async () => {
-        const response = await axios.post('http://localhost:4000/api/chatbot/', { userMessage });
+        const response = await axios.post('https://hssm-2-1.onrender.com/api/chatbot/', { userMessage });
         setChatHistory([...chatHistory, { user: userMessage }, { bot: response.data.botMessage }]);
         setUserMessage('');
     };

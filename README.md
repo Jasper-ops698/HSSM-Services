@@ -1,28 +1,41 @@
-
 # MultiShop
 
 ## Description
+
 MultiShop is a platform where users can register to provide and book services. Users can access the app through a browser via the link shared in the blog post.
 
 ## Installation
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/Jasper-ops698/MultiShop.git
    ```
-2. Navigate to the project directory:
+2. **Install Pandoc:**
+   This project uses Pandoc to generate PowerPoint presentations from Markdown. You must install it on your system for the report download feature to work.
+
+   - **Windows:** Download the installer from the [Pandoc website](https://pandoc.org/installing.html).
+   - **macOS (using Homebrew):** `brew install pandoc`
+   - **Linux (Debian/Ubuntu):** `sudo apt-get install pandoc`
+
+   Ensure the Pandoc executable is available in your system's PATH.
+
+3. Navigate to the project directory:
    ```bash
    cd MultiShop
    ```
-3. Install the dependencies:
+4. Install the dependencies:
    ```bash
    npm install
    ```
 
 ## Usage
+
 1. Start the development server:
+
    ```bash
    npm start
    ```
+
    Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 2. Build the app for production:
@@ -31,6 +44,7 @@ MultiShop is a platform where users can register to provide and book services. U
    ```
 
 ## Contributing
+
 1. Fork the repository
 2. Create a new branch (`git checkout -b feature-branch`)
 3. Make your changes
@@ -41,9 +55,11 @@ MultiShop is a platform where users can register to provide and book services. U
 Merges will be accepted after authorization by the admin.
 
 ## License
+
 This project is licensed under the MIT License.
 
 ## Contact
+
 - Email: bkitib@gmail.com / bkitib2@gmail.com
 - Website: [Your Website](http://yourwebsite.com)
 

@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { TextField, Button, Box, FormControl, Typography, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoEyeOff, IoEye } from 'react-icons/io5';
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL
+import api from '../api';
 
 
 const SignUp = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', role: 'individual' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', role: 'student' });
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // Input change handler
+  // Input change handler 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -47,8 +45,8 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      await axios.post(`${API_BASE_URL}/api/auth/signup`, formData);
-      alert('Signup successful! Please log in.');
+      await api.post('/api/auth/signup', formData);
+      alert('Registration successful! Please check your email to verify your account.');
       navigate('/login');
     } catch (err) {
       setErrorMessage(err.response?.data?.message || 'An error occurred. Please try again.');
@@ -113,9 +111,8 @@ const SignUp = () => {
             value={formData.role}
             onChange={handleInputChange}
           >
-            <MenuItem value="individual">Individual</MenuItem>
-            <MenuItem value="service-provider">Service Provider</MenuItem>
-            <MenuItem value="HSSM-provider">HSSM Provider</MenuItem>
+            <MenuItem value="student">Student</MenuItem>
+            <MenuItem value="staff">Staff</MenuItem>
           </Select>
         </FormControl>
         <Button
