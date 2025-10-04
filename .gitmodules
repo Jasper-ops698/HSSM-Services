@@ -1,3 +1,4 @@
 [submodule "backend"]
 	path = backend
 	url = https://github.com/Jasper-ops698/HSSM-2.git
+	branch = LMS2
