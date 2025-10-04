@@ -1,21 +1,55 @@
 {
   "name": "frontend",
+  "main": "index.js",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@azure/msal-browser": "^4.24.1",
+    "@azure/msal-react": "^3.0.20",
+    "@azure/notification-hubs": "^2.0.0",
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0",
+    "@mui/icons-material": "^5.0.0",
+    "@mui/material": "^5.17.1",
+    "@mui/x-date-pickers": "^7.24.0",
     "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "bcryptjs-react": "^2.4.6",
+    "chart.js": "^4.4.7",
     "cra-template": "1.2.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "crypto-browserify": "^3.12.1",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
+    "file-saver": "^2.0.5",
+    "flowise-embed-react": "^1.0.7",
+    "framer-motion": "^12.3.1",
+    "google-auth-library": "^10.1.0",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
+    "jwt-decode": "^4.0.0",
+    "notistack": "^3.0.2",
+    "os-browserify": "^0.3.0",
+    "path": "^0.12.7",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.4.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.0.2",
-    "react-scripts": "5.0.1"
+    "react-scripts": "^5.0.1",
+    "react-syntax-highlighter": "^15.6.1",
+    "recharts": "^2.15.0",
+    "socket.io-client": "^4.8.1",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint --cache --ext .js,.jsx src"
   },
+  "proxy": "http://localhost:4000",
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -33,5 +67,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "react-app-rewired": "^2.2.1"
   }
 }

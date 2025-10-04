@@ -1,0 +1,233 @@
+/* General Dashboard Styles */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Open Sans', sans-serif; /* Using a more modern font */
+  background-color: #f4f4f4; /* Light background for better readability */
+}
+
+h1, h2 {
+  color: #333;
+}
+
+.requests-section {
+  margin-bottom: 20px;
+}
+
+.requests-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.requests-section li {
+  margin-bottom: 15px;
+  border: 1px solid #e0e0e0; /* Lighter border */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Subtle box shadow */
+}
+
+.requests-section button {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.requests-section button:hover {
+  background-color: #0056b3;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+}
+
+.modal h2 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.modal .close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  cursor: pointer;
+  color: #999;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal form label {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.modal form input, .modal form textarea {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal form button {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal form button:hover {
+  background-color: #0056b3;
+}
+
+/* Spinner */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 50px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Feedback section */
+.rating-review, .feedback {
+  margin-top: 15px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.rating-review p, .feedback p {
+  margin: 0;
+}
+
+/* Search Bar */
+.search-bar {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px; /* Added gap for better spacing */
+}
+
+.search-bar input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 200px;
+}
+
+.search-bar button {
+  padding: 10px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #0056b3;
+}
+
+/* Loading Container */
+.loading-container {
+  text-align: center;
+  padding: 50px 0;
+}
+
+/* Error Container */
+.error-container {
+  border: 1px solid #f00; /* Red border */
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  background-color: #f8d7da; /* Light red background for error */
+  color: #721c24; /* Red text for error */
+}
+
+/* Responsive Design */
+@media (min-width: 600px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+
+  .modal-content {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .search-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-bar input {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .requests-section li {
+    padding: 10px;
+  }
+
+  .modal form button {
+    padding: 10px;
+  }
+}
+
+@media (min-width: 600px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .requests-section li {
+    font-size: 14px;
+  }
+
+  .search-bar button {
+    padding: 8px 10px;
+  }
+}
