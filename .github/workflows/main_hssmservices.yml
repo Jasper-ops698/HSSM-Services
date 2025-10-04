@@ -17,26 +17,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: "22.x"
 
-      - name: npm install, build, and test
+      - name: npm ci, build, and test
         working-directory: ./backend
         run: |
-          npm install
+          npm ci --omit=dev
           npm run build --if-present
           npm run test --if-present
+
+      - name: Prepare deployment artifact
+        working-directory: ./backend
+        run: rm -rf node_modules
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: backend
 
   deploy:
     runs-on: ubuntu-latest
@@ -64,4 +66,4 @@ jobs:
         with:
           app-name: "HssmServices"
           slot-name: "Production"
-          package: .
+          package: backend
