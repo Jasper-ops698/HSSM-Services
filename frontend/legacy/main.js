@@ -2,8 +2,32 @@ console.log("Frontend setup is working!");
 
 
 // API Configuration
-// Prefer an explicit window-global base URL if the React app injects it, fall back to the original default.
-const API_BASE_URL = 'https://hssmservices-cwggbkcpadg2d3be.uaenorth-01.azurewebsites.net';
+const DEFAULT_REMOTE_API = 'https://hssmservices-cwggbkcpadg2d3be.uaenorth-01.azurewebsites.net';
+const DEFAULT_LOCAL_API = 'http://localhost:4000';
+
+function resolveApiBaseUrl() {
+    const candidates = [];
+
+    if (typeof window !== 'undefined' && window.__API_BASE_URL__) {
+        candidates.push(String(window.__API_BASE_URL__).trim());
+    }
+
+    if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+        const host = window.location.hostname;
+        if (['localhost', '127.0.0.1'].includes(host)) {
+            candidates.push(DEFAULT_LOCAL_API);
+        }
+    }
+
+    candidates.push(DEFAULT_REMOTE_API);
+
+    return candidates.find((value) => value && value.length > 0) || DEFAULT_REMOTE_API;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+if (typeof window !== 'undefined') {
+    window.__API_BASE_URL__ = API_BASE_URL;
+}
 
 // Lightweight fetch wrapper used by this legacy script. It mirrors the behavior of the
 // centralized frontend `api` client by prefixing the base URL and attaching the
