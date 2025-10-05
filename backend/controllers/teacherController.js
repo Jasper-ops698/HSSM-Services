@@ -6,107 +6,6 @@ const Announcement = require('../models/Announcement');
 const Timetable = require('../models/Timetable');
 const Attendance = require('../models/Attendance');
 
-// @desc    Teacher creates a new class
-// @route   POST /api/teacher/class
-// @access  Private/Teacher
-exports.createClass = async (req, res) => {
-  try {
-    const { name, description, creditsRequired, image, timetable } = req.body;
-    const teacher = req.user;
-
-    if (!name || !description || !creditsRequired) {
-      return res.status(400).json({ message: 'Name, description, and credits required are mandatory.' });
-    }
-
-    // Find the HOD for the teacher's department
-    const hod = await User.findOne({ role: 'HOD', department: teacher.department });
-
-    const newClass = new Class({
-      name,
-      description,
-      creditsRequired,
-      image,
-      timetable,
-      teacher: teacher._id,
-      department: teacher.department,
-      HOD: hod ? hod._id : null, // Assign HOD if found
-    });
-
-    await newClass.save();
-    res.status(201).json({ message: 'Class created successfully.', class: newClass });
-  } catch (error) {
-    console.error('Error creating class:', error);
-    res.status(500).json({ message: 'Server error while creating class.' });
-  }
-};
-
-// @desc    Teacher updates their own class
-// @route   PUT /api/teacher/class/:id
-// @access  Private/Teacher
-exports.updateClass = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updates = req.body;
-    const teacherId = req.user._id;
-
-    const targetClass = await Class.findById(id);
-
-    if (!targetClass) {
-      return res.status(404).json({ message: 'Class not found.' });
-    }
-
-    // Ensure the teacher owns the class
-    if (targetClass.teacher.toString() !== teacherId.toString()) {
-      return res.status(403).json({ message: 'You are not authorized to update this class.' });
-    }
-
-    // Update fields
-    Object.keys(updates).forEach(key => {
-      // Prevent changing teacher, department, or HOD
-      if (key !== 'teacher' && key !== 'department' && key !== 'HOD') {
-        targetClass[key] = updates[key];
-      }
-    });
-
-    await targetClass.save();
-    res.status(200).json({ message: 'Class updated successfully.', class: targetClass });
-  } catch (error) {
-    console.error('Error updating class:', error);
-    res.status(500).json({ message: 'Server error while updating class.' });
-  }
-};
-
-// @desc    Teacher deletes their own class
-// @route   DELETE /api/teacher/class/:id
-// @access  Private/Teacher
-exports.deleteClass = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const teacherId = req.user._id;
-
-    const targetClass = await Class.findById(id);
-
-    if (!targetClass) {
-      return res.status(404).json({ message: 'Class not found.' });
-    }
-
-    if (targetClass.teacher.toString() !== teacherId.toString()) {
-      return res.status(403).json({ message: 'You are not authorized to delete this class.' });
-    }
-
-    // Add a check: do not delete if students are enrolled
-    if (targetClass.enrolledStudents && targetClass.enrolledStudents.length > 0) {
-      return res.status(400).json({ message: 'Cannot delete class with enrolled students. Please remove students first.' });
-    }
-
-    await targetClass.deleteOne();
-    res.status(200).json({ message: 'Class deleted successfully.' });
-  } catch (error) {
-    console.error('Error deleting class:', error);
-    res.status(500).json({ message: 'Server error while deleting class.' });
-  }
-};
-
 // @desc    Get all classes for the logged-in teacher
 // @route   GET /api/teacher/classes
 // @access  Private/Teacher
@@ -579,9 +478,6 @@ exports.createAnnouncement = async (req, res) => {
 };
 
 module.exports = {
-  createClass: exports.createClass,
-  updateClass: exports.updateClass,
-  deleteClass: exports.deleteClass,
   getTeacherClasses: exports.getTeacherClasses,
   getDashboardData: exports.getDashboardData,
   markAttendance: exports.markAttendance,

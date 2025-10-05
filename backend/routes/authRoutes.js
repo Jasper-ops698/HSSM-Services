@@ -1,5 +1,6 @@
 const express = require('express');
 const { registerUser, loginUser, verifyEmail, forgotPassword, resetPassword, DeviceToken, getProfile, updateProfile, changePassword, toggle2FA, resendVerification } = require('../controllers/authController');
+const { protect } = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 router.post('/signup', registerUser);
@@ -16,18 +17,18 @@ router.post('/logout', (req, res) => {
 });
 
 // Update user profile (name, email)
-router.put('/profile', require('../middlewares/authMiddleware').protect, require('../controllers/authController').updateProfile);
+router.put('/profile', protect, updateProfile);
 
 // Change password
-router.put('/change-password', require('../middlewares/authMiddleware').protect, require('../controllers/authController').changePassword);
+router.put('/change-password', protect, changePassword);
 
 // Get user profile info (including 2FA status)
-router.get('/profile', require('../middlewares/authMiddleware').protect, getProfile);
+router.get('/profile', protect, getProfile);
 
 // Toggle 2FA
-router.put('/toggle-2fa', require('../middlewares/authMiddleware').protect, toggle2FA);
+router.put('/toggle-2fa', protect, toggle2FA);
 
 // Resend email verification
-router.post('/resend-verification', require('../middlewares/authMiddleware').protect, resendVerification);
+router.post('/resend-verification', protect, resendVerification);
 
 module.exports = router;

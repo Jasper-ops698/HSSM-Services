@@ -74,7 +74,7 @@ const deleteAllNotifications = async (req, res) => {
   }
 };
 
-exports.registerDevice = async (req, res) => {
+const registerDevice = async (req, res) => {
   const { token, userId, platform } = req.body; // platform can be 'fcm', 'apns', etc.
 
   if (!token || !userId || !platform) {
@@ -107,4 +107,5 @@ module.exports = {
   markAllNotificationsAsRead,
   deleteNotification,
   deleteAllNotifications,
+  registerDevice,
 };

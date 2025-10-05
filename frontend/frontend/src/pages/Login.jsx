@@ -344,104 +344,122 @@ const Login = () => {
 
   // --- Render ---
   return (
-    // Consider adding some styling or a container component for better layout
-    <Box sx={{ maxWidth: 400, margin: 'auto', mt: 8, p: 3, border: '1px solid #ccc', borderRadius: 2, boxShadow: 3 }}>
-       <Typography variant="h5" component="h1" gutterBottom align="center">
-        Login
-      </Typography>
-      <Button
-        variant="outlined"
-        color="primary"
-        fullWidth
-        sx={{ mt: 2, mb: 2 }}
-        onClick={handleGoogleSignIn}
-        disabled={loading}
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      sx={{ p: 2, bgcolor: '#f0f2f5' }} // Light grey background for the page
+    >
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 450,
+          p: { xs: 2, sm: 4 },
+          bgcolor: 'white',
+          borderRadius: 2,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        }}
       >
-        Sign in with Google
-      </Button>
-      {!twoFactorRequired ? (
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Email"
-          type="email" // Use type="email" for better semantics and mobile keyboards
-          name="email"
-          value={formData.email}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          required // Add basic HTML5 required validation
-        />
-        <TextField
-          label="Password"
-          type={showPassword ? 'text' : 'password'}
-          name="password"
-          value={formData.password}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          required // Add basic HTML5 required validation
-          InputProps={{
-            endAdornment: (
-              <IconButton onClick={handleShowPassword} edge="end"> {/* Added edge="end" */}
-                {showPassword ? <IoEyeOff /> : <IoEye />}
-              </IconButton>
-            ),
-          }}
-        />
-        {error && (
-          <Typography color="error" sx={{ mt: 1, mb: 1, textAlign: 'center' }}>
-            {error}
-          </Typography>
-        )}
+        <Typography variant="h5" component="h1" gutterBottom align="center">
+          Login
+        </Typography>
         <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2, mb: 2 }} // Added mb
-          disabled={loading}
-        >
-          {loading ? 'Logging In...' : 'Log In'}
-        </Button>
-      </form>
-    ) : (
-      <form onSubmit={handle2FASubmit}>
-        <TextField
-          label="2FA Code"
-          type="text"
-          name="twoFactorToken"
-          value={twoFactorToken}
-          onChange={e => setTwoFactorToken(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        {error && (
-          <Typography color="error" sx={{ mt: 1, mb: 1, textAlign: 'center' }}>
-            {error}
-          </Typography>
-        )}
-        <Button
-          type="submit"
-          variant="contained"
+          variant="outlined"
           color="primary"
           fullWidth
           sx={{ mt: 2, mb: 2 }}
+          onClick={handleGoogleSignIn}
           disabled={loading}
+          startIcon={<img src="https://www.google.com/favicon.ico" alt="Google icon" style={{ width: 20, height: 20 }} />}
         >
-          {loading ? 'Verifying...' : 'Verify 2FA'}
+          Sign in with Google
         </Button>
-      </form>
-    )}
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-      <Typography variant="body2"> {/* Use Typography for consistent styling */}
-        <Link to="/signup">Don't have an account? Sign up</Link>
-      </Typography>
-      <Button variant="text" size="small" onClick={handleForgotPassword} disabled={loading}> {/* Disable while logging in */}
-        Forgot password?
-      </Button>
+        {!twoFactorRequired ? (
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              fullWidth
+              margin="normal"
+              required
+            />
+            <TextField
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              fullWidth
+              margin="normal"
+              required
+              InputProps={{
+                endAdornment: (
+                  <IconButton onClick={handleShowPassword} edge="end">
+                    {showPassword ? <IoEyeOff /> : <IoEye />}
+                  </IconButton>
+                ),
+              }}
+            />
+            {error && (
+              <Typography color="error" sx={{ mt: 1, mb: 1, textAlign: 'center' }}>
+                {error}
+              </Typography>
+            )}
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 2, mb: 2 }}
+              disabled={loading}
+            >
+              {loading ? 'Logging In...' : 'Log In'}
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={handle2FASubmit}>
+            <TextField
+              label="2FA Code"
+              type="text"
+              name="twoFactorToken"
+              value={twoFactorToken}
+              onChange={e => setTwoFactorToken(e.target.value)}
+              fullWidth
+              margin="normal"
+              required
+            />
+            {error && (
+              <Typography color="error" sx={{ mt: 1, mb: 1, textAlign: 'center' }}>
+                {error}
+              </Typography>
+            )}
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 2, mb: 2 }}
+              disabled={loading}
+            >
+              {loading ? 'Verifying...' : 'Verify 2FA'}
+            </Button>
+          </form>
+        )}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+          <Typography variant="body2">
+            <Link to="/signup">Don't have an account? Sign up</Link>
+          </Typography>
+          <Button variant="text" size="small" onClick={handleForgotPassword} disabled={loading}>
+            Forgot password?
+          </Button>
+        </Box>
+      </Box>
     </Box>
-  </Box>
   );
 };
 

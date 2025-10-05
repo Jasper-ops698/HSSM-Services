@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const {
   createClass,
-  teacherCreateClass,
   getAllClasses,
   updateClass,
   deleteClass,
@@ -14,38 +13,30 @@ const verifyRole = require('../middlewares/verifyRole');
 
 // --- Class Routes ---
 
-// Create a new class (admin, HOD, or teacher)
+// Create a new class (admin or HOD)
 router.post(
   '/',
   protect, // Use the 'protect' function
-  verifyRole(['admin', 'HOD', 'teacher']),
+  verifyRole(['admin', 'HOD']),
   createClass
-);
-
-// Create a new class by teacher
-router.post(
-  '/teacher',
-  protect,
-  verifyRole(['teacher']),
-  teacherCreateClass
 );
 
 // Get all classes (accessible to all authenticated users)
 router.get('/', protect, getAllClasses); // Use the 'protect' function
 
-// Update a class (admin, HOD, or teacher)
+// Update a class (admin or HOD)
 router.put(
   '/:id',
   protect, // Use the 'protect' function
-  verifyRole(['admin', 'HOD', 'teacher']),
+  verifyRole(['admin', 'HOD']),
   updateClass
 );
 
-// Delete a class (admin, HOD, or teacher)
+// Delete a class (admin or HOD)
 router.delete(
   '/:id',
   protect, // Use the 'protect' function
-  verifyRole(['admin', 'HOD', 'teacher']),
+  verifyRole(['admin', 'HOD']),
   deleteClass
 );
 

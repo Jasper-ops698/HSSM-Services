@@ -1,8 +1,8 @@
 const { NotificationHubsClient } = require("@azure/notification-hubs");
 
 const client = new NotificationHubsClient(
-  process.env.AZURE_NOTIFICATION_HUB_CONNECTION_STRING,
-  process.env.AZURE_NOTIFICATION_HUB_NAME
+  process.env.NOTIFICATION_HUB_CONNECTION_STRING,
+  process.env.NOTIFICATION_HUB_NAME
 );
 
 const sendAzureNotification = async (message) => {

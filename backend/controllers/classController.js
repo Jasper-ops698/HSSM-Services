@@ -49,45 +49,6 @@ const createClass = async (req, res) => {
   }
 };
 
-// @desc    Create a new class by teacher
-// @route   POST /api/classes/teacher
-// @access  Private (Teacher)
-const teacherCreateClass = async (req, res) => {
-  try {
-    const { name, description, creditsRequired } = req.body;
-    const teacherId = req.user._id;
-    const teacher = await User.findById(teacherId);
-
-    if (!name || !description || creditsRequired === undefined) {
-      return res.status(400).json({ success: false, message: 'Please provide name, description, and credits required.' });
-    }
-
-    if (!teacher) {
-      return res.status(404).json({ success: false, message: 'Teacher not found.' });
-    }
-
-    // Find HOD for the teacher's department
-    const hod = await User.findOne({ role: 'HOD', department: teacher.department });
-    if (!hod) {
-      return res.status(400).json({ success: false, message: 'No HOD found for your department.' });
-    }
-
-    const newClass = new Class({
-      name,
-      description,
-      teacher: teacherId,
-      department: teacher.department,
-      creditsRequired,
-      HOD: hod._id,
-    });
-
-    const savedClass = await newClass.save();
-    res.status(201).json({ success: true, data: savedClass });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-  }
-};
-
 // @desc    Get all classes
 // @route   GET /api/classes
 // @access  Private
@@ -235,7 +196,6 @@ const getStudentsByClass = async (req, res) => {
 
 module.exports = {
   createClass,
-  teacherCreateClass,
   getAllClasses,
   updateClass,
   deleteClass,

@@ -17,17 +17,10 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
-  Divider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField
+  Divider
 } from '@mui/material';
 import { 
   Class as ClassIcon, 
-  Edit, 
-  Delete, 
   Schedule,
   ArrowBack
 } from '@mui/icons-material';
@@ -67,16 +60,6 @@ const TeacherClassManagement = () => {
   const [tabValue, setTabValue] = useState(0);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
-  // Edit/Delete state
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editFormData, setEditFormData] = useState({
-    name: '',
-    description: '',
-    creditsRequired: '',
-    image: ''
-  });
   // Fetch teacher's classes
   useEffect(() => {
     const fetchClasses = async () => {
@@ -124,79 +107,6 @@ const TeacherClassManagement = () => {
   const handleClassSelect = (cls) => {
     setSelectedClass(cls);
     setTabValue(0); // Reset to first tab
-  };
-
-  // Edit Class Handlers
-  const handleEditClass = () => {
-    if (!selectedClass) return;
-    
-    setEditFormData({
-      name: selectedClass.name,
-      description: selectedClass.description,
-      creditsRequired: selectedClass.creditsRequired,
-      image: selectedClass.image
-    });
-    setEditDialogOpen(true);
-  };
-
-  const handleEditFormChange = (e) => {
-    const { name, value } = e.target;
-    setEditFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleEditSubmit = async () => {
-    if (!selectedClass) return;
-    
-    setLoading(true);
-    try {
-  // token not used here; api client handles auth
-      const response = await api.put(
-        `/api/teacher/class/${selectedClass._id}`,
-        editFormData
-      );
-      
-      // Update the class in the local state
-      setClasses(prev => prev.map(cls => 
-        cls._id === selectedClass._id ? response.data.class : cls
-      ));
-      setSelectedClass(response.data.class);
-      
-      setSuccess('Class updated successfully!');
-      setEditDialogOpen(false);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update class');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Delete Class Handlers
-  const handleDeleteClass = () => {
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!selectedClass) return;
-    
-    setLoading(true);
-    try {
-  // token not used here; api client handles auth
-      await api.delete(`/api/teacher/class/${selectedClass._id}`);
-      
-      // Remove the class from local state
-      setClasses(prev => prev.filter(cls => cls._id !== selectedClass._id));
-      setSelectedClass(null);
-      
-      setSuccess('Class deleted successfully!');
-      setDeleteDialogOpen(false);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete class');
-    } finally {
-      setLoading(false);
-    }
   };
 
   // Enrollment Management Handlers
@@ -277,7 +187,7 @@ const TeacherClassManagement = () => {
             </Typography>
             {classes.length === 0 ? (
               <Typography color="text.secondary" sx={{ textAlign: 'center', mt: 3 }}>
-                You haven't created any classes yet.
+                No classes have been assigned to you yet. Please reach out to your HOD if you need a new class created.
               </Typography>
             ) : (
               <List>
@@ -307,16 +217,6 @@ const TeacherClassManagement = () => {
                 ))}
               </List>
             )}
-            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-              <Button 
-                variant="contained" 
-                color="primary" 
-                startIcon={<ClassIcon />}
-                href="/create-class"
-              >
-                Create New Class
-              </Button>
-            </Box>
           </Paper>
         </Grid>
 
@@ -392,23 +292,9 @@ const TeacherClassManagement = () => {
                       </Typography>
                     )}
                     
-                    <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-                      <Button 
-                        variant="outlined" 
-                        startIcon={<Edit />}
-                        onClick={handleEditClass}
-                      >
-                        Edit Class
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        color="error" 
-                        startIcon={<Delete />}
-                        onClick={handleDeleteClass}
-                      >
-                        Delete Class
-                      </Button>
-                    </Box>
+                    <Alert severity="info" sx={{ mt: 3 }}>
+                      Class details are managed by your HOD. If you need changes, please reach out to them directly.
+                    </Alert>
                   </Grid>
                 </Grid>
               </TabPanel>
@@ -493,16 +379,11 @@ const TeacherClassManagement = () => {
           ) : (
             <Paper sx={{ p: 3, textAlign: 'center' }}>
               <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                No class selected or you haven't created any classes yet.
+                No class selected or none have been assigned to you yet.
               </Typography>
-              <Button 
-                variant="contained" 
-                color="primary" 
-                startIcon={<ClassIcon />}
-                href="/create-class"
-              >
-                Create Your First Class
-              </Button>
+              <Alert severity="info">
+                Class creation and updates are coordinated by your HOD. Please contact them if you need assistance.
+              </Alert>
             </Paper>
           )}
         </Grid>
@@ -532,81 +413,6 @@ const TeacherClassManagement = () => {
         </Alert>
       </Snackbar>
 
-      {/* Edit Class Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Edit Class</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label="Class Name"
-              name="name"
-              value={editFormData.name}
-              onChange={handleEditFormChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Description"
-              name="description"
-              value={editFormData.description}
-              onChange={handleEditFormChange}
-              fullWidth
-              multiline
-              rows={4}
-            />
-            <TextField
-              label="Credits Required"
-              name="creditsRequired"
-              type="number"
-              value={editFormData.creditsRequired}
-              onChange={handleEditFormChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Image URL"
-              name="image"
-              value={editFormData.image}
-              onChange={handleEditFormChange}
-              fullWidth
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleEditSubmit} 
-            variant="contained" 
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={20} /> : 'Update Class'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Class</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to delete the class "{selectedClass?.name}"?
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            This action cannot be undone. All enrolled students will be removed from this class.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleDeleteConfirm} 
-            color="error" 
-            variant="contained"
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={20} /> : 'Delete Class'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

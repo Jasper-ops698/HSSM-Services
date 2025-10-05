@@ -3,9 +3,7 @@ const router = express.Router();
 const { 
   getDashboardData, 
   markAttendance, 
-  createClass, 
-  updateClass, 
-  deleteClass, 
+  bulkMarkAttendance,
   getTeacherClasses,
   addVenueAnnouncement,
   updateVenueAnnouncement,
@@ -27,23 +25,7 @@ router.get('/dashboard', protect, verifyRole(['teacher']), getDashboardData);
 // @access  Private (Teacher)
 router.post('/attendance', protect, verifyRole(['teacher']), markAttendance);
 // Bulk attendance marking: accepts { classId, date, attendance: [{ studentId, status }, ...] }
-router.post('/attendance/bulk', protect, verifyRole(['teacher']), require('../controllers/teacherController').bulkMarkAttendance);
-
-// Class management routes
-// @route   POST /api/teacher/class
-// @desc    Create a new class
-// @access  Private (Teacher)
-router.post('/class', protect, verifyRole(['teacher']), createClass);
-
-// @route   PUT /api/teacher/class/:id
-// @desc    Update a class
-// @access  Private (Teacher)
-router.put('/class/:id', protect, verifyRole(['teacher']), updateClass);
-
-// @route   DELETE /api/teacher/class/:id
-// @desc    Delete a class
-// @access  Private (Teacher)
-router.delete('/class/:id', protect, verifyRole(['teacher']), deleteClass);
+router.post('/attendance/bulk', protect, verifyRole(['teacher']), bulkMarkAttendance);
 
 // @route   GET /api/teacher/classes
 // @desc    Get all classes for the logged-in teacher

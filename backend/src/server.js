@@ -169,18 +169,6 @@ connectToDatabase()
       });
     });
 
-const notificationRoutes = require('../routes/notificationRoutes');
-const reportRoutes = require('../routes/reportRoutes');
-const requestRoutes = require('../routes/requestRoutes');
-const serviceRoutes = require('../routes/serviceRoutes');
-const studentRoutes = require('../routes/studentRoutes');
-const teacherRoutes = require('../routes/teacherRoutes');
-const timetableRoutes = require('../routes/timetableRoutes');
-const twofaRoutes = require('../routes/twofaRoutes');
-const venueRoutes = require('../routes/venueRoutes');
-
-// ... (other route imports)
-
 // --- API Routes ---
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
@@ -198,11 +186,10 @@ app.use('/api/hssm-dashboard', hssmDashboardRoutes);
 app.use('/api/hssm-providers', hssmProviderRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reports', reportRoutes);
-app.use('/api/requests', requestRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/students', studentRoutes);
-app.use('/api/teachers', teacherRoutes);
-app.use('/api/timetables', timetableRoutes);
+app.use('/api/teacher', teacherRoutes);
+app.use('/api/timetable', timetableRoutes);
 app.use('/api/2fa', twofaRoutes);
 app.use('/api/venues', venueRoutes);
 app.use('/api/absences', absenceRoutes);
