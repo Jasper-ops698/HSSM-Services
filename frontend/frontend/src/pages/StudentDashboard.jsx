@@ -16,7 +16,7 @@ import {
   Divider,
   Button,
   Chip,
-  CardMedia,
+  Stack,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -31,11 +31,14 @@ import {
   CalendarToday,
   LocationOn,
   Close,
+  AccessTime,
+  Person,
+  Group,
+  School,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StudentAbsenceModal from '../components/models/StudentAbsenceModal';
-import assetUrl from '../utils/assetUrl';
 import socket from '../socket';
 import api from '../api';
 
@@ -558,13 +561,6 @@ const StudentDashboard = () => {
     );
   };
 
-  const handleImageError = (e) => {
-    const placeholder = assetUrl('uploads/placeholder-image.png');
-    if (e.target.src !== placeholder) {
-      e.target.src = placeholder;
-    }
-  };
-
   useEffect(() => {
     socket.connect();
     // Register this socket with the backend so it joins a room for this user
@@ -822,44 +818,159 @@ const StudentDashboard = () => {
                     // Consider optimistic state and server-sent pending as pending as well
                     const isPending = !isEnrolled && (serverStatus === 'Pending' || pendingClassIds.has(clsId) || optimisticPending.has(clsId));
 
+                    const scheduleSlots = Array.isArray(cls.timetable) ? cls.timetable.filter(slot => slot) : [];
+                    const formattedSlots = scheduleSlots.slice(0, 2).map((slot) => {
+                      const dayLabel = slot?.day || slot?.dayOfWeek || slot?.dayName || '';
+                      const start = formatTime(slot?.startTime || slot?.start);
+                      const end = formatTime(slot?.endTime || slot?.end);
+                      const range = start && end ? `${start} – ${end}` : (start || end || '');
+                      const venueLabel = slot?.venue ? `@ ${slot.venue}` : '';
+                      return [dayLabel, range, venueLabel].filter(Boolean).join(' ');
+                    }).filter(Boolean);
+                    const scheduleSummary = formattedSlots.join(' • ') || 'Schedule pending';
+                    const extraSessions = Math.max(0, scheduleSlots.length - 2);
+                    const rawTeacher = typeof cls.teacher === 'object' && cls.teacher !== null
+                      ? (cls.teacher.fullName || cls.teacher.name || cls.teacher.displayName || cls.teacher.email)
+                      : (cls.teacherName || cls.teacherFullName || cls.teacherEmail || (typeof cls.teacher === 'string' ? cls.teacher : ''));
+                    const teacherDisplay = rawTeacher || 'Awaiting assignment';
+                    const enrolledCount = Array.isArray(cls.enrolledStudents) ? cls.enrolledStudents.length : null;
+                    const activeVenue = cls.venueAnnouncements?.find?.((announcement) => announcement?.active);
+                    const statusColor = isEnrolled ? '#2e7d32' : isPending ? '#ed6c02' : '#1e88e5';
+
                     return (
-                      <Grid item key={cls._id} xs={12} sm={6} md={4} sx={{ minWidth: { xs: 300, sm: 345 } }}>
-                        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: isEnrolled ? '2px solid #2e7d32' : undefined, background: isEnrolled ? 'linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%)' : undefined }}>
-                          <CardMedia
-                            component="img"
-                            height="140"
-                            image={cls.image ? assetUrl(cls.image.replace(/\\/g, '/')) : assetUrl('uploads/placeholder-image.png')}
-                            alt={cls.name}
-                            onError={handleImageError}
-                          />
-                          <CardContent sx={{ flexGrow: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between' }}>
-                              <Typography gutterBottom variant="h6" component="h2">{cls.name}</Typography>
+                      <Grid item key={cls._id} xs={12} sm={6} md={4} sx={{ minWidth: { xs: 300, sm: 340 } }}>
+                        <Card
+                          sx={{
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            borderRadius: 3,
+                            position: 'relative',
+                            overflow: 'hidden',
+                            border: '1px solid',
+                            borderColor: isEnrolled ? 'success.light' : 'grey.200',
+                            boxShadow: '0 12px 24px rgba(15, 23, 42, 0.08)',
+                            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                            background: isEnrolled
+                              ? 'linear-gradient(135deg, rgba(46, 125, 50, 0.12) 0%, rgba(241, 248, 233, 0.9) 100%)'
+                              : isPending
+                                ? 'linear-gradient(135deg, rgba(245, 124, 0, 0.08) 0%, rgba(255, 243, 224, 0.85) 100%)'
+                                : 'linear-gradient(135deg, rgba(33, 150, 243, 0.06) 0%, rgba(3, 169, 244, 0.03) 100%)',
+                            '&:hover': {
+                              transform: 'translateY(-4px)',
+                              boxShadow: '0 18px 36px rgba(15, 23, 42, 0.12)'
+                            }
+                          }}
+                        >
+                          <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 6, bgcolor: statusColor }} />
+                          <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+                              <Box>
+                                <Typography variant="overline" sx={{ color: 'text.secondary', letterSpacing: 1.2 }}>Class</Typography>
+                                <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>{cls.name}</Typography>
+                              </Box>
                               {isEnrolled ? (
                                 <Chip label="Enrolled" color="success" size="small" />
                               ) : isPending ? (
                                 <Chip label="Pending" color="warning" size="small" />
-                              ) : null}
+                              ) : (
+                                <Chip label="Available" color="info" size="small" />
+                              )}
                             </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{cls.description}</Typography>
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>Department: {cls.department || 'N/A'}</Typography>
-                            <Typography variant="subtitle2" color="primary">Credits: {cls.creditsRequired}</Typography>
-                            {cls.venueAnnouncements?.filter(a => a.active).slice(0, 1).map((announcement, index) => (
-                              <Box key={index} sx={{ mt: 2, p: 1, bgcolor: 'rgba(66, 165, 245, 0.1)', borderRadius: 1 }}>
-                                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: 'primary.main' }}>
-                                  <LocationOn fontSize="small" sx={{ mr: 0.5 }} />
-                                  <strong>Venue:</strong> {announcement.venue}
+
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{
+                                mb: 1,
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                              }}
+                            >
+                              {cls.description || 'No description provided.'}
+                            </Typography>
+
+                            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1.2 }}>
+                              <Chip
+                                icon={<School fontSize="small" />}
+                                label={cls.department || 'Department TBD'}
+                                variant="outlined"
+                                size="small"
+                                sx={{ backgroundColor: 'background.paper' }}
+                              />
+                              <Chip
+                                icon={<AccountBalanceWallet fontSize="small" />}
+                                label={`${cls.creditsRequired ?? 0} credits`}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                                sx={{
+                                  backgroundColor: 'primary.light',
+                                  color: 'primary.dark',
+                                  '& .MuiChip-icon': { color: 'primary.dark' }
+                                }}
+                              />
+                              {typeof enrolledCount === 'number' && (
+                                <Chip
+                                  icon={<Group fontSize="small" />}
+                                  label={`${enrolledCount} enrolled`}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              )}
+                            </Stack>
+
+                            <Stack spacing={1.2} sx={{ mt: 0.5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <AccessTime fontSize="small" sx={{ color: 'primary.main' }} />
+                                <Typography variant="body2" color="text.primary">
+                                  <Typography component="span" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.8, color: 'text.secondary', mr: 0.5 }}>
+                                    Schedule:
+                                  </Typography>
+                                  {scheduleSummary}
+                                  {extraSessions > 0 && (
+                                    <Typography component="span" variant="body2" sx={{ color: 'text.secondary', ml: 0.5 }}>
+                                      (+{extraSessions} more)
+                                    </Typography>
+                                  )}
                                 </Typography>
                               </Box>
-                            ))}
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Person fontSize="small" sx={{ color: 'secondary.main' }} />
+                                <Typography variant="body2" color="text.primary">
+                                  <Typography component="span" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.8, color: 'text.secondary', mr: 0.5 }}>
+                                    Instructor:
+                                  </Typography>
+                                  {teacherDisplay}
+                                </Typography>
+                              </Box>
+                              {activeVenue && (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <LocationOn fontSize="small" sx={{ color: 'error.main' }} />
+                                  <Typography variant="body2" color="text.primary">
+                                    <Typography component="span" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.8, color: 'text.secondary', mr: 0.5 }}>
+                                      Venue:
+                                    </Typography>
+                                    {activeVenue.venue}
+                                  </Typography>
+                                </Box>
+                              )}
+                            </Stack>
                           </CardContent>
-                          <Box sx={{ p: 2, pt: 0 }}>
+                          <Box sx={{ px: 2.5, pb: 2.5, pt: 0 }}>
                             {isEnrolled ? (
                               <Button fullWidth variant="outlined" color="success" disabled>Enrolled</Button>
                             ) : isPending ? (
                               <Button fullWidth variant="outlined" color="warning" disabled>Pending</Button>
                             ) : (
-                              <Button fullWidth variant="contained" color="primary" onClick={() => handleOpenEnrollmentModal(cls._id)}>
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleOpenEnrollmentModal(cls._id)}
+                              >
                                 Request Enrollment
                               </Button>
                             )}

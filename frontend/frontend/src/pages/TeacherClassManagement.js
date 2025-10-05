@@ -6,8 +6,6 @@ import {
   Typography,
   Tabs,
   Tab,
-  Card,
-  CardMedia,
   Button,
   CircularProgress,
   Alert,
@@ -25,10 +23,8 @@ import {
   ArrowBack
 } from '@mui/icons-material';
 import api from '../api';
-import assetUrl from '../utils/assetUrl';
 import { useNavigate } from 'react-router-dom';
 import TeacherClassVenue from '../components/TeacherClassVenue';
-const FALLBACK_IMAGE_URL = assetUrl('/uploads/placeholder-image.png');
 
 // TabPanel Component
 function TabPanel(props) {
@@ -249,17 +245,7 @@ const TeacherClassManagement = () => {
               {/* Class Details Tab */}
               <TabPanel value={tabValue} index={0}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={4}>
-                    <Card>
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image={selectedClass.image ? assetUrl(selectedClass.image.replace(/\\/g, '/')) : FALLBACK_IMAGE_URL}
-                        alt={selectedClass.name}
-                      />
-                    </Card>
-                  </Grid>
-                  <Grid item xs={12} md={8}>
+                  <Grid item xs={12}>
                     <Typography variant="h6" gutterBottom>
                       Description
                     </Typography>
