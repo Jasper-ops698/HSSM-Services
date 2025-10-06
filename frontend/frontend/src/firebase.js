@@ -12,6 +12,18 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
+const missingKeys = Object.entries(firebaseConfig)
+  .filter(([, value]) => !value)
+  .map(([key]) => key);
+
+if (missingKeys.length) {
+  throw new Error(
+    `Firebase configuration incomplete. Missing environment variables: ${missingKeys.join(
+      ', '
+    )}. Ensure REACT_APP_FIREBASE_* values are defined before building.`
+  );
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
