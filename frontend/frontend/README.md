@@ -1,3 +1,9 @@
+# Frontend Environment Notes
+
+The frontend reads Firebase credentials from `REACT_APP_FIREBASE_*` build-time variables. When those values are not available (for example in certain hosting environments), it falls back to the runtime script loaded from `public/firebase-config.js`. Update that file whenever the Firebase project configuration changes, or override the values by defining the environment variables before running `npm start` / `npm run build`.
+
+To verify the configuration locally, create a `.env.local` in this folder with the keys shown in `.env` and restart the dev server. For production deployments, either set the same variables in your hosting pipeline or inject a custom `window.__FIREBASE_CONFIG__` object before the React bundle loads.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
