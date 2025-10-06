@@ -70,4 +70,5 @@ jobs:
         with:
           app-name: "HssmServices"
           slot-name: "Production"
-          package: node-app/backend
+          package: node-app
+
