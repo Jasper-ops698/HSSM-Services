@@ -183,7 +183,6 @@ app.use('/api/hod', hodRoutes);
 app.use('/api/hssm', HssmRoutes);
 app.use('/api/hssm-dashboard', hssmDashboardRoutes);
 app.use('/api/hssm-providers', hssmProviderRoutes);
-app.use('/api/notifications', notificationRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/students', studentRoutes);
