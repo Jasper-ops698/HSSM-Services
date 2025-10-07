@@ -138,6 +138,7 @@ connectToDatabase()
     const hodRoutes = require('../routes/hodRoutes');
     const creditRoutes = require('../routes/creditRoutes');
     const hssmProviderRoutes = require('../routes/hssmProviderRoutes');
+    const notificationsRouter = require('../routes/notificationRoutes');
     const reportRoutes = require('../routes/reportRoutes');
     const announcementRoutes = require('../routes/announcementRoutes');
     const aiRoutes = require('../routes/aiRoutes');
@@ -183,6 +184,7 @@ app.use('/api/hod', hodRoutes);
 app.use('/api/hssm', HssmRoutes);
 app.use('/api/hssm-dashboard', hssmDashboardRoutes);
 app.use('/api/hssm-providers', hssmProviderRoutes);
+app.use('/api/notifications', notificationsRouter);
 app.use('/api/reports', reportRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/students', studentRoutes);
