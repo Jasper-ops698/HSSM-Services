@@ -133,7 +133,6 @@ connectToDatabase()
     const twofaRoutes = require('../routes/twofaRoutes');
     const googleAuthRoutes = require('../routes/googleAuthRoutes');
     const absenceRoutes = require('../routes/absenceRoutes');
-    const notificationRoutes = require('../routes/notificationRoutes');
     const studentRoutes = require('../routes/studentRoutes');
     const teacherRoutes = require('../routes/teacherRoutes');
     const hodRoutes = require('../routes/hodRoutes');
