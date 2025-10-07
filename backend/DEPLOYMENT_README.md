@@ -16,7 +16,7 @@ The CORS issue has been resolved with a robust, production-ready configuration t
 
 ```
 NODE_ENV=production
-ALLOWED_ORIGINS=https://hssm-services.web.app,https://hssm-services.firebaseapp.com
+ALLOWED_ORIGINS=https://hssm-services.web.app,https://hssm-services.firebaseapp.com,https://ambitious-ground-046b8310f.2.azurestaticapps.net
 PORT=10000
 MONGO_URI=mongodb+srv://Jas65386538:Jas65386538@coko.ihxtg.mongodb.net/?retryWrites=true&w=majority&appName=COKO
 JWT_SECRET=Jas65386538
